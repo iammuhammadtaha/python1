@@ -1,0 +1,30 @@
+import requests
+from bs4 import BeautifulSoup
+def find_and_count_occurrences(url, search_word):
+    try:
+        
+        response = requests.get(url)
+        response.raise_for_status()
+        html_content = response.text
+       
+        soup = BeautifulSoup(html_content, 'html.parser')
+        
+        elements = soup.find_all(['p', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'strong'], string=lambda text: text and search_word.lower() in text.lower())
+        occurrences = len(elements)
+        
+        print(f"\nTotal occurrences of '{search_word}' in URL: {occurrences}")
+        
+        if elements:
+            print(f"\nFound the word '{search_word}' in the following URL:\n")
+            for element in elements:
+                print(f"*** WORD: {element.name.capitalize() if element.name else 'Unknown'} - {element.get_text()}\n")
+        else:
+            print(f"\nNo occurrences found for '{search_word}'.")
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching content from the webpage: {e}")
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
+
+url_input = input("\nEnter the URL of the webpage: ")
+word_input = input("\nEnter the word to search: ")
+find_and_count_occurrences(url_input, word_input)
